@@ -69,7 +69,7 @@ jobs:
             cat .env
 
             # ✅ Iniciar el Backend (Node.js) con `.env`
-            sudo docker run -d -p 4000:4000 --env-file .env --name server ${{ secrets.DOCKER_USERNAME }}/gemeni_pinecone:latest
+            sudo docker run -d -p 4000:4000 --env-file .env --name gemini_pinecone ${{ secrets.DOCKER_USERNAME }}/gemeni_pinecone:latest
 
             # ✅ Verificar que el contenedor está corriendo
             sudo docker ps -a
