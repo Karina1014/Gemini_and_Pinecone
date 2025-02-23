@@ -11,7 +11,7 @@ dotenv.config();
 // Inicializa Pinecone y el modelo de embeddings
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 const app = express();
-const port = 3000;
+const port = 4000;
 
 // Middleware para parsear las solicitudes JSON
 app.use(express.json());
