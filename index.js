@@ -55,23 +55,37 @@ async function consultarYGenerarRespuesta(query) {
     const contextoPinecone = resultado.matches
       .map(match => match.metadata.text)
       .join("\n")
-      .slice(0, 10000); // Limita la longitud del contexto a 1000 caracteres
+      .slice(0, 10000); // Limita la longitud del contexto a 10000 caracteres
+
+    if (!contextoPinecone) {
+      return "Lo siento, no pude encontrar información relevante para tu consulta en la base de datos.";
+    }
 
     // Estructura de prompt para la pregunta
     const prompt = `
-   Actúa como un asistente virtual amigable y servicial. Tu tarea es ayudar a responder preguntas utilizando la información más relevante disponible.
-
-            Aquí tienes la información relevante que encontré en la base de datos:
-
-    ${contextoPinecone}
-
-     Por favor, responde a la siguiente pregunta de la manera más precisa y útil posible:
-
-            Pregunta: ${query}
-
-    Respuesta:
+    Eres un agente de servicio de un banco con experiencia en la gestión de reclamos.  
+    Tu tarea es **clasificar la siguiente consulta** en una de las siguientes categorías:  
+    
+    1️⃣ **Reclamo Operativo**: Problemas con transacciones, cargos indebidos, reembolsos, bloqueo de cuentas, demoras en procesos.  
+    2️⃣ **Reclamo Técnico**: Fallos en la app, error en cajeros, problemas con banca en línea, accesos denegados, errores de autenticación.  
+    3️⃣ **Reclamo Atención al Cliente**: Mala atención en sucursales, trato inadecuado de asesores, tiempos de espera largos, falta de respuesta.  
+    4️⃣ **Otro**: Solo si la pregunta no tiene suficiente contexto o no se relaciona con el banco.  
+    
+    📌 **Ejemplo 1:** "No puedo acceder a mi cuenta en la app." → Reclamo Técnico  
+    📌 **Ejemplo 2:** "Me cobraron dos veces el mismo pago." → Reclamo Operativo  
+    📌 **Ejemplo 3:** "El asesor del banco me trató mal." → Reclamo Atención al Cliente  
+    📌 **Ejemplo 4:** "¿Cuándo es el próximo partido de fútbol?" → Otro  
+    
+    Aquí tienes información relevante de la base de datos que puede ayudar a clasificar:  
+    📝 **Contexto encontrado:**  
+    ${contextoPinecone}  
+    
+    🔹 **Clasifica la siguiente pregunta:**  
+    ❓ **Pregunta:** ${query}  
+    
+    ✏️ **Devuelve solo la categoría exacta (sin explicaciones adicionales)**.
     `;
-
+    
     // Crear una instancia de GoogleGenerativeAI con la API Key desde las variables de entorno
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
     const model = genAI.getGenerativeModel({
@@ -98,13 +112,14 @@ async function consultarYGenerarRespuesta(query) {
     // Extraer solo la respuesta esperada
     const respuesta = result.response.text().trim();
 
+    if (!respuesta) {
+      return "Lo siento, no pude generar una respuesta adecuada para tu consulta.";
+    }
+
     // Registra la pregunta y la respuesta en el archivo de registro
     chatResponses(query, respuesta);
 
-    // Añadir la frase adicional para ofrecer más ayuda
-    const respuestaConAdicional = `${respuesta}\n\n¿En qué más le puedo ayudar?`;
-
-    return respuestaConAdicional; // Devuelve solo la respuesta generada con frase adicional
+    return respuesta; // Devuelve solo la respuesta generada sin la frase adicional
   } else {
     return "Lo siento, no pudimos encontrar el índice para realizar la consulta.";
   }
