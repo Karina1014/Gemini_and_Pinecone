@@ -55,24 +55,22 @@ jobs:
             sudo docker images
 
             # Detener y eliminar los contenedores existentes por nombre
-            sudo docker stop cliente || true
-            sudo docker rm cliente || true
-            sudo docker stop server || true
-            sudo docker rm server || true
+            sudo docker stop gemeni_pinecone || true
+            sudo docker rm gemeni_pinecone || true
+           
 
             # Verificar las variables de entorno antes de generar el archivo
-            echo "Base de datos: $MONGODB_URI"
+            echo "Base de datos: $GOOGLE_API_KEY"
 
             # Crear el archivo .env dentro de la carpeta src
-            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> src/.env
             echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> src/.env
             echo "PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }}" >> src/.env
 
             # Verificar que el archivo .env se ha creado correctamente
-            cat src/.env
+            cat .env
 
             # ✅ Iniciar el Backend (Node.js) con `.env`
-            sudo docker run -d -p 4000:4000 --env-file src/.env --name server ${{ secrets.DOCKER_USERNAME }}/gemeni_pinecone:latest
+            sudo docker run -d -p 4000:4000 --env-file .env --name server ${{ secrets.DOCKER_USERNAME }}/gemeni_pinecone:latest
 
             # ✅ Verificar que el contenedor está corriendo
             sudo docker ps -a
