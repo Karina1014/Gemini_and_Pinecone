@@ -54,6 +54,10 @@ jobs:
             # Verificar si las imágenes fueron descargadas correctamente
             sudo docker images
 
+            # Detener y eliminar los contenedores existentes
+            sudo docker stop gemeni_pinecone || true
+            sudo docker rm gemeni_pinecone || true
+
             # Verificar las variables de entorno antes de generar el archivo
             echo "Base de datos: $GOOGLE_API_KEY"
 
